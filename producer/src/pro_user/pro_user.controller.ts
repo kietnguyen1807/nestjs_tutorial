@@ -22,7 +22,7 @@ import {
 import { ProUserService } from './pro_user.service';
 import { CreateProUserDto } from './dto/create-pro_user.dto';
 import { UpdateProUserDto } from './dto/update-pro_user.dto';
-import { Public } from 'src/auth/auth.decorator';
+import { Public, ResponseMessage } from 'src/auth/auth.decorator';
 import { EventPattern } from '@nestjs/microservices';
 import { createAccountforUser } from './dto/create-accountforuser.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -37,7 +37,7 @@ export class ProUserController {
   constructor(private readonly proUserService: ProUserService) {}
 
   @Post()
-  @UsePipes(ValidationPipe)
+  @ResponseMessage('Fetch register')
   createUser(@Body() createUser: CreateProUserDto) {
     return this.proUserService.createUser(createUser);
   }
@@ -53,7 +53,6 @@ export class ProUserController {
   }
 
   @Patch(':id')
-  @UsePipes(ValidationPipe)
   updateUser(
     @Param('id', ParseIntPipe) id: number,
     @Body() UpdateProUserDto: UpdateProUserDto,
@@ -67,7 +66,6 @@ export class ProUserController {
   }
 
   @Post('account/:id')
-  @UsePipes(ValidationPipe)
   createAccount(
     @Body() createAccount: createAccountforUser,
     @Param('id', ParseIntPipe) id: number,

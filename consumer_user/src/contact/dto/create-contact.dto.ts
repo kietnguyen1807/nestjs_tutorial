@@ -21,3 +21,11 @@ export class CreateContactDto {
   @MaxLength(1000, { message: 'Message must not exceed 1000 characters' })
   message: string;
 }
+
+export class CheckCodeDto {
+  @IsNotEmpty({ message: 'Id is not emty' })
+  id: number;
+
+  @IsNotEmpty({ message: 'Code is not emty' })
+  code: string;
+}

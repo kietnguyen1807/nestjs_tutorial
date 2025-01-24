@@ -10,7 +10,7 @@ import {
 import { ContactService } from './contact.service';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
-import { EventPattern, Payload } from '@nestjs/microservices';
+import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 
 @Controller('contact')
 export class ContactController {
@@ -22,9 +22,13 @@ export class ContactController {
     return 'Send for admin successful';
   }
 
-  @EventPattern({ service: 'mail', cmd: 'send-mail' })
+  @MessagePattern({ service: 'mail', cmd: 'send-reply' })
   async sendUser(@Payload() mailerDto) {
-    this.contactService.sendUser(mailerDto);
-    return 'Send for user successful';
+    return this.contactService.sendUser(mailerDto);
+  }
+
+  @MessagePattern({ service: 'mail', cmd: 'check-code' })
+  async checkCode(@Payload() mailerDto) {
+    return this.contactService.checkCode(mailerDto);
   }
 }

@@ -12,7 +12,7 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { AccountService } from './account.service';
-import { CreateAccountDto } from './dto/create-account.dto';
+import { CheckEmailDto, CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Prisma } from '@prisma/client';
@@ -26,10 +26,16 @@ export class AccountController {
     return this.accountService.createAccount(CreateAccountDto);
   }
 
+  @MessagePattern({ service: 'account', cmd: 'check-email' })
+  checkemail(@Payload() data: CheckEmailDto) {
+    return this.accountService.checkemail(data);
+  }
+
   @MessagePattern({ service: 'account', cmd: 'fetch-account' })
   getAccounts() {
     return this.accountService.getAccounts();
   }
+
   @MessagePattern({ service: 'account', cmd: 'fetch-account-id' })
   getAccountById(@Payload() data: { id: number }) {
     return this.accountService.getAccountById(data.id);

@@ -16,6 +16,7 @@ import { TimeoutInterceptor } from './interceptor/timeout.interceptor';
 import { RoleUserModule } from './role_user/role_user.module';
 import { LoginModule } from './login/login.module';
 import { ContactModule } from './contact/contact.module';
+import { TransformInterceptor } from './interceptor/transform.interceptor';
 
 @Module({
   imports: [
@@ -43,13 +44,17 @@ import { ContactModule } from './contact/contact.module';
   controllers: [AppController],
   providers: [
     AppService,
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: AuthGuard,
+    // },
     {
       provide: APP_INTERCEPTOR,
       useClass: GetRequestInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TransformInterceptor,
     },
     {
       provide: APP_INTERCEPTOR,

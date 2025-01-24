@@ -5,3 +5,7 @@ export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
 
 export const ACCESS_KEY = 'access';
 export const Access = () => SetMetadata(ACCESS_KEY, true);
+
+export const RESPONSE_MESSAGE = 'response_message';
+export const ResponseMessage = (message: string) =>
+  SetMetadata(RESPONSE_MESSAGE, message);

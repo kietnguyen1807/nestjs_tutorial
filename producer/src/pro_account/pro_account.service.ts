@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 
 import { UpdateAccountDto } from './dto/update-pro_account.dto';
-import { CreateAccountDto } from './dto/create-pro_account.dto';
+import { CheckEmailDto, CreateAccountDto } from './dto/create-pro_account.dto';
 import { ClientProxy } from '@nestjs/microservices';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
@@ -84,6 +84,22 @@ export class ProAccountService {
     } catch (error) {
       if (error.response.status === HttpStatus.NOT_FOUND)
         throw new NotFoundException(error);
+      else {
+        throw new InternalServerErrorException(error);
+      }
+    }
+  }
+
+  async checkemail(data: CheckEmailDto) {
+    try {
+      const response = await this.rabbitClient.send(
+        { service: 'account', cmd: 'check-email' },
+        data,
+      );
+      return response;
+    } catch (error) {
+      if (error.response.status === HttpStatus.BAD_REQUEST)
+        throw new BadRequestException(error);
       else {
         throw new InternalServerErrorException(error);
       }

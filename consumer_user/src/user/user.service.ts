@@ -20,6 +20,10 @@ export class UserService {
     return await bcrypt.hash(password, salt); // Trả về mật khẩu đã mã hóa
   }
 
+  generateActivationCode(): string {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  }
+
   async Login(createLoggin: CreateLoginDto) {
     const { email, password } = createLoggin;
     const existingAccount = await this.prisma.account.findUnique({
@@ -31,6 +35,12 @@ export class UserService {
         statusCode: HttpStatus.BAD_REQUEST,
       });
     }
+    if (existingAccount.isActive === false) {
+      throw new RpcException({
+        message: 'Account not active',
+        statusCode: HttpStatus.FORBIDDEN,
+      });
+    }
     const isPasswordCorrect = await bcrypt.compare(
       password,
       existingAccount.password,
@@ -38,7 +48,7 @@ export class UserService {
     if (!isPasswordCorrect) {
       throw new RpcException({
         message: 'Password not correct',
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.UNAUTHORIZED,
       });
     }
     const infor = await this.prisma.account.findUnique({
@@ -54,13 +64,25 @@ export class UserService {
     const payload = {
       ...infor,
     };
+    const user = await this.prisma.user.findUnique({ where: { email: email } });
     const access_token = await this.jwtService.signAsync(payload);
-    return { access_token };
+    return {
+      user: {
+        firstName: user.firstName,
+        middleName: user.middleName,
+        lastName: user.lastName,
+        email: email,
+        password: password,
+      },
+      access_token,
+    };
   }
+
   async createAccountforUser(
     id: number,
     createAccountForUser: createAccountforUser,
   ) {
+    const activationCode = this.generateActivationCode();
     const { password } = createAccountForUser;
     const user = await this.prisma.user.findUnique({ where: { id } });
 
@@ -75,12 +97,14 @@ export class UserService {
       data: {
         email: user.email,
         password: hashedPassword,
+        codeId: activationCode,
       },
     });
   }
 
   async createUser(createUserDto: CreateUserDto) {
     const { password, email, ...data } = createUserDto;
+    const activationCode = this.generateActivationCode();
 
     const emailExist = await this.prisma.user.findUnique({ where: { email } });
     if (emailExist) {
@@ -97,6 +121,7 @@ export class UserService {
         Account: {
           create: {
             password: hashedPassword,
+            codeId: activationCode,
           },
         },
       },

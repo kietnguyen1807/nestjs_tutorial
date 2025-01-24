@@ -11,7 +11,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ProAccountService } from './pro_account.service';
-import { CreateAccountDto } from './dto/create-pro_account.dto';
+import { CheckEmailDto, CreateAccountDto } from './dto/create-pro_account.dto';
 import { UpdateAccountDto } from './dto/update-pro_account.dto';
 
 @Controller('pro-account')
@@ -19,7 +19,6 @@ export class ProAccountController {
   constructor(private readonly proAccountService: ProAccountService) {}
 
   @Post()
-  @UsePipes(ValidationPipe)
   createAccount(@Body() CreateAccountDto: CreateAccountDto) {
     return this.proAccountService.createAccount(CreateAccountDto);
   }
@@ -40,11 +39,15 @@ export class ProAccountController {
   }
 
   @Patch(':id')
-  @UsePipes(ValidationPipe)
   updateUser(
     @Param('id', ParseIntPipe) id: number,
     @Body() UpdateAccountDto: UpdateAccountDto,
   ) {
     return this.proAccountService.updateAccount(id, UpdateAccountDto);
+  }
+
+  @Post('checkemail')
+  checkemail(@Body() data: CheckEmailDto) {
+    return this.proAccountService.checkemail(data);
   }
 }

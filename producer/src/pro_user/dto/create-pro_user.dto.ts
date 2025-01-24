@@ -61,5 +61,6 @@ export class CreateProUserDto {
 
   @IsNotEmpty({ message: 'Role is not emty' })
   @IsString()
+  @IsOptional()
   role: string;
 }

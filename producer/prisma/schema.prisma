@@ -30,7 +30,7 @@ model User {
   Account Account? 
   files Files?
   roles Roles @relation(fields: [role], references: [role], onDelete: Cascade, onUpdate: Cascade)
-  role String
+  role String @default("basic")
 }
 
 model Account{
@@ -40,6 +40,8 @@ model Account{
 
   email String @unique
   password String 
+  isActive Boolean @default(false)
+    codeId String
 
   user User @relation(fields: [email], references: [email], onDelete: Cascade, onUpdate: Cascade)
 }

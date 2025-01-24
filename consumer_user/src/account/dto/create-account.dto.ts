@@ -56,8 +56,9 @@ export class CreateAccountDto {
     message: 'Password must contain at least one special character',
   })
   password: string;
+}
 
-  @IsNotEmpty({ message: 'RoleId is not emty' })
-  @IsString()
-  role: string;
+export class CheckEmailDto {
+  @IsNotEmpty({ message: 'Email is not emty' })
+  email: string;
 }

@@ -58,8 +58,4 @@ export class CreateUserDto {
     message: 'Password must contain at least one special character',
   })
   password: string;
-
-  @IsNotEmpty({ message: 'RoleId is not emty' })
-  @IsString()
-  role: string;
 }

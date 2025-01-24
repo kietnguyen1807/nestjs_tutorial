@@ -1,9 +1,11 @@
 import {
   BadRequestException,
+  ForbiddenException,
   HttpStatus,
   Inject,
   Injectable,
   InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateLoginDto } from './dto/create-login.dto';
 import { UpdateLoginDto } from './dto/update-login.dto';
@@ -27,6 +29,10 @@ export class LoginService {
     } catch (error) {
       if (error.response.status === HttpStatus.BAD_REQUEST)
         throw new BadRequestException(error);
+      else if (error.response.status === HttpStatus.UNAUTHORIZED)
+        throw new UnauthorizedException(error);
+      else if (error.response.status === HttpStatus.FORBIDDEN)
+        throw new ForbiddenException(error);
       else {
         throw new InternalServerErrorException(error);
       }

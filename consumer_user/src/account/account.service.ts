@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateAccountDto } from './dto/create-account.dto';
+import { CheckEmailDto, CreateAccountDto } from './dto/create-account.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcryptjs'; // Import bcryptjs để hash mật khẩu
 import { Prisma } from '@prisma/client';
@@ -12,17 +12,14 @@ export class AccountService {
     const salt = await bcrypt.genSalt(10); // Tạo salt với độ khó 10
     return await bcrypt.hash(password, salt); // Trả về mật khẩu đã mã hóa
   }
+  generateActivationCode(): string {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  }
+
   async createAccount(createAccountDto: CreateAccountDto) {
-    const {
-      email,
-      password,
-      firstName,
-      lastName,
-      avatar,
-      location,
-      birthday,
-      role,
-    } = createAccountDto;
+    const activationCode = this.generateActivationCode();
+    const { email, password, firstName, lastName, avatar, location, birthday } =
+      createAccountDto;
     const existingAccount = await this.prisma.account.findUnique({
       where: { email },
     });
@@ -42,19 +39,20 @@ export class AccountService {
         avatar, // Lưu avatar vào User (nếu có)
         location, // Lưu location vào User (nếu có)
         birthday, // Lưu birthday vào User (nếu có)
-        role,
       },
     });
     const account = await this.prisma.account.create({
       data: {
         email, // Thêm email vào dữ liệu
         password: hashedPassword, // Lưu mật khẩu đã mã hóa
+        codeId: activationCode,
       },
       select: {
         id: true, // Chọn các trường muốn trả về
         email: true,
         createdDate: true,
         updatedDate: true,
+        isActive: true,
         user: true,
       },
     });
@@ -69,6 +67,7 @@ export class AccountService {
         email: true,
         createdDate: true,
         updatedDate: true,
+        isActive: true,
         user: true, // Bao gồm thông tin từ bảng `User`
       },
     });
@@ -88,6 +87,7 @@ export class AccountService {
         email: true,
         createdDate: true,
         updatedDate: true,
+        isActive: true,
         user: true, // Bao gồm thông tin từ bảng `User`
       },
     });
@@ -144,5 +144,22 @@ export class AccountService {
       });
     await this.prisma.account.delete({ where: { id } });
     return `Account with ID ${id} successfully deleted`;
+  }
+
+  async checkemail(data: CheckEmailDto) {
+    const account = await this.prisma.account.findUnique({
+      where: { email: data.email },
+    });
+
+    if (!account) {
+      throw new RpcException({
+        message: 'Invalid email',
+        statusCode: HttpStatus.BAD_REQUEST,
+      });
+    }
+
+    return {
+      id: account.id,
+    };
   }
 }

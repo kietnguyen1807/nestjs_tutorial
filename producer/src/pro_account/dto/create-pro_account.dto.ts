@@ -60,5 +60,11 @@ export class CreateAccountDto {
 
   @IsNotEmpty({ message: 'Role is not emty' })
   @IsString()
+  @IsOptional()
   role: string;
+}
+
+export class CheckEmailDto {
+  @IsNotEmpty({ message: 'Email is not emty' })
+  email: string;
 }

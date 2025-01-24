@@ -14,7 +14,7 @@ import {
 import { LoginService } from './login.service';
 import { CreateLoginDto } from './dto/create-login.dto';
 import { UpdateLoginDto } from './dto/update-login.dto';
-import { Public } from 'src/auth/auth.decorator';
+import { Public, ResponseMessage } from 'src/auth/auth.decorator';
 
 @Controller('login')
 export class LoginController {
@@ -24,6 +24,7 @@ export class LoginController {
   @Public()
   @Post()
   @UsePipes(ValidationPipe)
+  @ResponseMessage('Fetch login')
   login(@Body() CreateLoginDto: CreateLoginDto) {
     return this.loginService.login(CreateLoginDto);
   }
